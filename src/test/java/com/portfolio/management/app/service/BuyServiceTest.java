@@ -30,12 +30,15 @@ class BuyServiceTest {
 	void testBuyNewStock() {
 		int numSharesToBuy = 5;		
 		String stockSymbol = "CRM";	
+		double currentStockPrice = 158.0;
 
 		// set desired behavior for Mock lot repository
 		when(ownedStockRepository.findByStockSymbol(any(String.class))).thenReturn(Optional.empty());
 
 		// call method under test
-		Lot newLotBought = buyService.buyMarket(stockSymbol, numSharesToBuy);
+		Lot newLotBought = buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);
+		assertThat(newLotBought.getSharesOwned()).isEqualTo(numSharesToBuy);
+		assertThat(newLotBought.getPurchasePrice()).isEqualTo(currentStockPrice);
 		assertThat(newLotBought.getSharesOwned()).isEqualTo(numSharesToBuy);
 		OwnedStock ownedStock = newLotBought.getOwnedStock();
 		assertThat(ownedStock).isNotNull();
@@ -46,14 +49,17 @@ class BuyServiceTest {
 	@Test
 	void testBuyExistingStock() {
 		int numSharesToBuy = 15;		
-		String stockSymbol = "CRM";	
+		String stockSymbol = "CRM";
+		double currentStockPrice = 316.0;
 
 		OwnedStock existingOwnedStock = new OwnedStock("CRM", new Lot(10, 300.0), new Lot(50, 314.0));
 		// set desired behavior for Mock lot repository
 		when(ownedStockRepository.findByStockSymbol(any(String.class))).thenReturn(Optional.of(existingOwnedStock));
 
 		// call method under test
-		Lot newLotBought = buyService.buyMarket(stockSymbol, numSharesToBuy);
+		Lot newLotBought = buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);
+		assertThat(newLotBought.getSharesOwned()).isEqualTo(numSharesToBuy);
+		assertThat(newLotBought.getPurchasePrice()).isEqualTo(currentStockPrice);
 		assertThat(newLotBought.getSharesOwned()).isEqualTo(numSharesToBuy);
 		OwnedStock ownedStock = newLotBought.getOwnedStock();
 		assertThat(ownedStock).isNotNull();
@@ -65,12 +71,13 @@ class BuyServiceTest {
 	@Test
 	void testBuyZero() {
 		int numSharesToBuy = 0;		
-		String stockSymbol = "CRM";		
+		String stockSymbol = "CRM";
+		double currentStockPrice = 300.0;
 
 		// assert that the right exception is thrown
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
 			// call method under test
-			buyService.buyMarket(stockSymbol, numSharesToBuy);			
+			buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);			
 		});
 
 		// assert that the exception has the right message
@@ -82,12 +89,13 @@ class BuyServiceTest {
 	@Test
 	void testBuyNegative() {
 		int numSharesToBuy = -1;		
-		String stockSymbol = "APPL";		
+		String stockSymbol = "AAPL";
+		double currentStockPrice = 558.0;
 
 		// assert that the right exception is thrown
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
 			// call method under test
-			buyService.buyMarket(stockSymbol, numSharesToBuy);			
+			buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);			
 		});
 
 		// assert that the exception has the right message
@@ -99,12 +107,13 @@ class BuyServiceTest {
 	@Test
 	void testBuyNullStockSymbol() {
 		int numSharesToBuy = 43;		
-		String stockSymbol = null;		
+		String stockSymbol = null;
+		double currentStockPrice = 18.0;
 
 		// assert that the right exception is thrown
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
 			// call method under test
-			buyService.buyMarket(stockSymbol, numSharesToBuy);			
+			buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);			
 		});
 
 		// assert that the exception has the right message
@@ -116,12 +125,13 @@ class BuyServiceTest {
 	@Test
 	void testBuyEmptyStockSymbol() {
 		int numSharesToBuy = 43;		
-		String stockSymbol = "";		
+		String stockSymbol = "";
+		double currentStockPrice = 8.0;
 
 		// assert that the right exception is thrown
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
 			// call method under test
-			buyService.buyMarket(stockSymbol, numSharesToBuy);			
+			buyService.buyMarket(stockSymbol, numSharesToBuy, currentStockPrice);			
 		});
 
 		// assert that the exception has the right message

@@ -10,33 +10,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.portfolio.management.app.dto.BuyStockDTO;
 import com.portfolio.management.app.dto.LotDTO;
+import com.portfolio.management.app.dto.LotToSellDTO;
 import com.portfolio.management.app.dto.OwnedStockDTO;
 import com.portfolio.management.app.dto.OwnedStockWithLotsDTO;
+import com.portfolio.management.app.dto.SellStockDTO;
 import com.portfolio.management.app.entity.Lot;
 import com.portfolio.management.app.entity.OwnedStock;
 import com.portfolio.management.app.repository.LotRepository;
 import com.portfolio.management.app.repository.OwnedStockRepository;
+import com.portfolio.management.app.service.BuyService;
+import com.portfolio.management.app.service.SellService;
 
+/**
+ * Controller for managing portfolio over REST API
+ *
+ */
 @RestController
 @RequestMapping("/api/portfolio")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class PortfolioController {
 	
 	@Autowired
-	LotRepository lotRepository;
+	private LotRepository lotRepository;
 	
 	@Autowired
-	OwnedStockRepository ownedStockRepository;
+	private OwnedStockRepository ownedStockRepository;
+	
+	@Autowired
+	private BuyService buyService;
+	
+	@Autowired
+	private SellService sellService;
 	
 	@GetMapping("/ownedStocksCreate")
 	public String bulkcreate(){
 		// save a list of owned Stocks
     	ownedStockRepository.saveAll(Arrays.asList(
-    			new OwnedStock("APPL", new Lot(10, 300.0), new Lot(50, 314.0)),
+    			new OwnedStock("AAPL", new Lot(10, 300.0), new Lot(50, 314.0)),
     			new OwnedStock("CRM", new Lot(40, 230.0), new Lot(20, 426.0))
 			));
 
@@ -98,6 +115,23 @@ public class PortfolioController {
 		return findLots(ownedStockOptional);
 	}
 	//------------------------------
+	
+	@PostMapping("/buyStock")
+	public void buyStock(@RequestBody BuyStockDTO buyStockDTO) {
+		buyService.buyMarket(buyStockDTO.getStockSymbol(), buyStockDTO.getNumSharesToBuy(), buyStockDTO.getStockPrice());
+	}
+	
+	@PostMapping("/sellStock")
+	public void sellStock(@RequestBody SellStockDTO sellStockDTO) {
+
+		for(LotToSellDTO lotDTO : sellStockDTO.getSharesToSell()) {
+			Optional<Lot>lotOptional = lotRepository.findById(lotDTO.getLotId());
+			int numSharesToSell = lotDTO.getQty();
+			if(lotOptional.isPresent() && numSharesToSell > 0) {
+				sellService.sell(lotOptional.get(), numSharesToSell);
+			}
+		}
+	}
 
 	private List<LotDTO> toLotDTOs(List<Lot> lots) {
 		List<LotDTO> lotDTOs = new ArrayList<>();

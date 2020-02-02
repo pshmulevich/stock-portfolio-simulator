@@ -16,6 +16,10 @@ import com.portfolio.management.app.dto.StockDTO;
 import com.portfolio.management.app.entity.Stock;
 import com.portfolio.management.app.repository.StockRepository;
 
+/**
+ * This class is used for debugging
+ *
+ */
 @RestController
 public class StockController {
 	@Autowired
@@ -33,7 +37,7 @@ public class StockController {
 						340.75, //previousClose
 						122100 //shares
 						),
-				new Stock("APPL", 
+				new Stock("AAPL", 
 						318.75, 
 						12.23, 
 						3.08, 

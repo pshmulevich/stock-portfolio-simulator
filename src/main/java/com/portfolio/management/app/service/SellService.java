@@ -13,13 +13,17 @@ import com.portfolio.management.app.repository.OwnedStockRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service to sell stock
+ *
+ */
 @Service
 @RequiredArgsConstructor
 public class SellService {
-	
+
 	private final LotRepository lotRepository;
 	private final OwnedStockRepository ownedStockRepository;
-	
+
 	public Optional<Lot> sell(Lot lot, int numSharesToSell) {
 		Assert.notNull(lot, "lot cannot be null");
 
@@ -33,11 +37,17 @@ public class SellService {
 			OwnedStock ownedStock = lot.getOwnedStock();
 			Set<Lot> ownedStockLots = ownedStock.getLots();
 			ownedStockLots.remove(lot);
-			// save
-			ownedStockRepository.save(ownedStock);
-			
 			// delete the lot entirely
 			lotRepository.delete(lot);
+
+			int numRemainingLots = ownedStock.getLots().size();
+			if(numRemainingLots > 0) {
+				// save
+				ownedStockRepository.save(ownedStock);
+			} else {
+				ownedStockRepository.delete(ownedStock);
+			}
+
 			//TODO: need to allocate money from shares sold
 			return Optional.empty();
 		} else {

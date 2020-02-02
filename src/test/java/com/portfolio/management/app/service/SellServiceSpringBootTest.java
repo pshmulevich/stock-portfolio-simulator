@@ -20,7 +20,7 @@ import com.portfolio.management.app.repository.LotRepository;
 import com.portfolio.management.app.repository.OwnedStockRepository;
 
 /**
- * Spring Boot "unit test". Execution takes much longer than
+ * Spring Boot "unit test" that starts up Spring Boot container. Execution takes much longer than
  * the execution of a true unit test {@link SellServiceTest}.
  * 
  * Avoid using this type of test whenever a true unit test is possible.
@@ -44,10 +44,6 @@ class SellServiceSpringBootTest {
 		int numSharesToSell = 19;		
 		double purchasePrice = 300.0;
 		Lot lot = new Lot(sharesOwned, purchasePrice);
-
-		// this constructor will set back-reference from lot to owned stock
-		OwnedStock ownedStock = new OwnedStock("APPL", lot);
-
 
 		// set desired behavior for Mock lot repository
 		when(lotRepository.save(any(Lot.class))).then(returnsFirstArg());
@@ -76,7 +72,7 @@ class SellServiceSpringBootTest {
 		Lot lot = new Lot(sharesOwned, purchasePrice);
 
 		// this constructor will set back-reference from lot to owned stock
-		OwnedStock ownedStock = new OwnedStock("APPL", lot);
+		OwnedStock ownedStock = new OwnedStock("AAPL", lot);
 		
 		// call method under test
 		Optional<Lot> savedLotOptional = sellService.sell(lot, numSharesToSell);
@@ -90,8 +86,10 @@ class SellServiceSpringBootTest {
 		// assert the lot is gone
 		assertThat(ownedStock.getLots().contains(lot)).isFalse();
 
-		// verify that save was called on ownedStockRepository with proper arguments
-		verify(ownedStockRepository).save(ownedStock);
+		// verify that delete was called on ownedStockRepository with proper arguments
+		// TODO: this assertion is for selling the last lot. 
+		// Add similar assertion for save is called instead of delete if there are other remaining lots of this stock
+		verify(ownedStockRepository).delete(ownedStock);
 	}
 
 	@Test

@@ -1,6 +1,7 @@
 package com.portfolio.management.app.service;
 
 import java.util.Optional;
+
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -12,15 +13,19 @@ import com.portfolio.management.app.repository.OwnedStockRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service to buy stock
+ *
+ */
 @Service
 @RequiredArgsConstructor
 public class BuyService {
 	
 	private final OwnedStockRepository ownedStockRepository;
 	
-	public Lot buyMarket(String stockSymbol, int numSharesToBuy) {
-		// TODO: Using hardcoded market price. Need service to find it out.
-		double marketPrice = 70.0;
+	public Lot buyMarket(String stockSymbol, int numSharesToBuy, double currentStockPrice) {
+		// TODO: Using stock price coming from client, this price will be slightly out of date
+		double marketPrice = currentStockPrice;
 		
 		Assert.hasLength(stockSymbol, "stockSymbol cannot be null or empty");
 		Assert.isTrue(numSharesToBuy > 0, "numSharesToBuy cannot be zero or negative: " + numSharesToBuy);

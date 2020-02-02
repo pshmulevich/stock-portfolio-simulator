@@ -55,7 +55,7 @@ class PortfolioControllerTest {
 	@Test
 	void testFindAllStocks() {
 		List<OwnedStock> ownedStocks = Arrays.asList(
-				new OwnedStock("APPL", new Lot(10, 300.0), new Lot(50, 314.0)),
+				new OwnedStock("AAPL", new Lot(10, 300.0), new Lot(50, 314.0)),
 				new OwnedStock("CRM", new Lot(40, 287.0), new Lot(20, 426.0)),
 				new OwnedStock("F", new Lot(20, 234.0), new Lot(30, 465.0))
 				);

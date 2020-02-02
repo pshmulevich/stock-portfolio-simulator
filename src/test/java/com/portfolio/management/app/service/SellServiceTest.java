@@ -64,7 +64,7 @@ class SellServiceTest {
 		double purchasePrice = 300.0;
 		Lot lot = new Lot(sharesOwned, purchasePrice);
 		// this constructor will set back-reference from lot to owned stock
-		OwnedStock ownedStock = new OwnedStock("APPL", lot);
+		OwnedStock ownedStock = new OwnedStock("AAPL", lot);
 
 		// call method under test
 		Optional<Lot> savedLotOptional = sellService.sell(lot, numSharesToSell);
@@ -78,8 +78,10 @@ class SellServiceTest {
 		// assert the lot is gone
 		assertThat(ownedStock.getLots().contains(lot)).isFalse();
 
-		// verify that save was called on ownedStockRepository with proper arguments
-		verify(ownedStockRepository).save(ownedStock);
+		// verify that delete was called on ownedStockRepository with proper arguments
+		// TODO: this assertion is for selling the last lot. 
+		// Add similar assertion for save is called instead of delete if there are other remaining lots of this stock
+		verify(ownedStockRepository).delete(ownedStock);
 	}
 
 	@Test
