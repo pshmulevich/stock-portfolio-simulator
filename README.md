@@ -20,7 +20,7 @@ This project is still a work in progress.
 * `./scripts/buildReact.sh` # build production version of React UI
 
 ### Running the application:
-* `export DATABASE_URL=<heroku-postgresql-connection-url>`
+* `export HEROKU_DATABASE_URL=<heroku-postgresql-connection-url>`
 * `export API_TOKEN=<www.worldtradingdata.com-api-token>`
 * `java -jar target/portfolio.management.app-0.0.1-SNAPSHOT.jar`
 
