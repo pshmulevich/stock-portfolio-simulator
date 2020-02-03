@@ -29,20 +29,33 @@ public class DirectQuoteController {
 	@GetMapping("/quote/{stockSymbol}")
 	public StockQuotes getQuote(@PathVariable("stockSymbol") String stockSymbol){
 		Map<String, String> uriVariables = new HashMap<String, String>();
-		// TODO: externalize token
 		uriVariables.put("api_token", apiToken);
 		uriVariables.put("symbol", stockSymbol);
 
 		ResponseEntity<StockQuotes> response = restTemplate.getForEntity("https://api.worldtradingdata.com/api/v1/stock?symbol={symbol}&api_token={api_token}", StockQuotes.class, uriVariables);
-		
 		return response.getBody();
-
 	}
 	
+	/**
+	 * Use this endpoint for debugging to get the unparsed response string from api.worldtradingdata.com.
+	 * @param stockSymbol stock symbol
+	 * @return unparsed service response
+	 */
+	@GetMapping("/quoteDebug/{stockSymbol}")
+	public String getQuoteDebug(@PathVariable("stockSymbol") String stockSymbol){
+		Map<String, String> uriVariables = new HashMap<String, String>();
+		uriVariables.put("api_token", apiToken);
+		uriVariables.put("symbol", stockSymbol);
+
+		ResponseEntity<String> response = restTemplate.getForEntity("https://api.worldtradingdata.com/api/v1/stock?symbol={symbol}&api_token={api_token}", String.class, uriVariables);
+		return response.getBody();
+	}
+
 	public static class StockQuotes {
 		private float symbols_requested;
 		private float symbols_returned;
 		private ArrayList <StockQuote> data = new ArrayList <StockQuote> ();
+		private String message;
 
 		public float getSymbols_requested() {
 			return symbols_requested;
@@ -66,6 +79,14 @@ public class DirectQuoteController {
 
 		public void setData(ArrayList < StockQuote > data) {
 			this.data = data;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
 		}
 	}
 
