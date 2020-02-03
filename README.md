@@ -26,6 +26,10 @@ This project is still a work in progress.
 
 The project is so far tested in Chrome and deployed on the [Heroku cloud](https://portfolio-management-app.herokuapp.com/)
 
+### TODO's
+* Add input validation and improve error handling 
+* Implement authentication and user accounts (currently there are no accounts)
+
 ------------------------------------------------------------
 
 
