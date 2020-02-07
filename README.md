@@ -5,6 +5,8 @@ You can look up stock information by searching with the stock symbol, buy shares
 
 This project is still a work in progress. 
 
+![ui thumbnail](/images/portfolio_diagram.png)
+
 ### The application consists of:
 * RESTful application service that is written in Java and uses Spring Boot. 
 * User interface written in Javascript/React
