@@ -20,36 +20,37 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Entity
-@Table(name = "ownedStock")
+@Table(name = "portfolio")
 @Getter
 @Setter
-public class OwnedStock implements Serializable {
+public class Portfolio implements Serializable {
 
-	private static final long serialVersionUID = 4408989578530571021L;
-	
+	private static final long serialVersionUID = -3748496235145115928L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
-	@Column(name = "stockSymbol")
-	private String stockSymbol;
-
+	@Column(name = "name")
+	private String name;
+	
     @ManyToOne
     @JoinColumn
     @NotNull
-	private Portfolio portfolio;
+	private Account account;
 	
-	@OneToMany(mappedBy = "ownedStock", cascade = CascadeType.ALL)
-    private Set<Lot> lots;
+	@OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
+    private Set<OwnedStock> ownedStocks;
 	
 	// Must provide default constructor because java would not do that since there is another constructor
-	public OwnedStock() {
+	public Portfolio() {
 	}
 	
-    public OwnedStock(String stockSymbol, Lot... lots) {
-        this.stockSymbol = stockSymbol;
-        this.lots = Stream.of(lots).collect(Collectors.toSet());
-        this.lots.forEach(lot -> lot.setOwnedStock(this));
-    }
+	public Portfolio(String name, OwnedStock... ownedStocks) {
+		this.name = name;
+		
+        this.ownedStocks = Stream.of(ownedStocks).collect(Collectors.toSet());
+        this.ownedStocks.forEach(ownedStock -> ownedStock.setPortfolio(this));
+	}
 }

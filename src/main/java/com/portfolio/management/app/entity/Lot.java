@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,7 @@ public class Lot implements Serializable {
 
     @ManyToOne
     @JoinColumn
+    @NotNull
 	private OwnedStock ownedStock;
 	
 	// Must provide default constructor because java would not do that since there is another constructor
