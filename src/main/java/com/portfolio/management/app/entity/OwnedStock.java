@@ -15,13 +15,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "ownedStock")
+@Table(name = "ownedStock", uniqueConstraints= @UniqueConstraint(columnNames={"portfolio_id", "stockSymbol"}, name = "uniqueStockSymbolPerPortfolioConstraint"))
+
 @Getter
 @Setter
 public class OwnedStock implements Serializable {
@@ -32,6 +34,7 @@ public class OwnedStock implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
+    @NotNull
 	@Column(name = "stockSymbol")
 	private String stockSymbol;
 
@@ -47,8 +50,9 @@ public class OwnedStock implements Serializable {
 	public OwnedStock() {
 	}
 	
-    public OwnedStock(String stockSymbol, Lot... lots) {
+    public OwnedStock(String stockSymbol, Portfolio portfolio, Lot... lots) {
         this.stockSymbol = stockSymbol;
+        this.portfolio = portfolio;
         this.lots = Stream.of(lots).collect(Collectors.toSet());
         this.lots.forEach(lot -> lot.setOwnedStock(this));
     }

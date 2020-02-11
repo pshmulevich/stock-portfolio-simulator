@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { DataContext } from "./dataContext";
 
+// TODO: not in use.
 const Settings = () => {
   const appData = useContext(DataContext);
   return (

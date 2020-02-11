@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+
 import stock_pic from "./assets/stock_pic.PNG";
 import stock_pic2 from "./assets/stock_pic2.PNG";
 import stock_pic3 from "./assets/stock_pic3.PNG";
 import useInterval from "./util/useInterval";
 import { serviceEndpoint } from "./configuration";
-import axios from "axios";
+import { DataContext } from "./dataContext";
 
 const otherStockData = [
   {
@@ -59,7 +61,7 @@ const generateOwnedLotTable = lots => {
       <div className="boxitem" key={index}>
         <li>
           Lot ID: {element.id}, Shares: {element.sharesOwned}, Purchased at: $
-        {element.purchasePrice}
+          {element.purchasePrice}
         </li>
       </div>
     );
@@ -71,8 +73,9 @@ const generateStockTable = stocks => {
     return (
       <div>
         <h3>No investments to show yet.</h3>
-        <p>Go to  
-        <NavLink exact to={"/stockInfoPage"}>
+        <p>
+          Go to
+          <NavLink exact to={"/stockInfoPage"}>
             <button className="button" title="Click to look up info">
               Stock Info
             </button>
@@ -101,8 +104,11 @@ const generateStockTable = stocks => {
 };
 
 const ViewPortfolio = () => {
+  const appData = useContext(DataContext);
   const [portfolioData, setPortfolioData] = useState([]);
-  const url = serviceEndpoint + "findAllOwnedStocksWithLots";
+  const url =
+    serviceEndpoint +
+    `findOwnedStocksWithLotsByPortfolio/${appData.portfolioId}`;
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios(url);
@@ -115,13 +121,14 @@ const ViewPortfolio = () => {
 
   const [imageIndex, setImageIndex] = useState(0);
 
+  const timeInterval = 4000;
   useInterval(() => {
     // Your custom logic here
     const newImageIndex =
       imageIndex >= imageArray.length - 1 ? 0 : imageIndex + 1;
     setImageIndex(newImageIndex);
     //console.log(newImageIndex);
-  }, 4000);
+  }, timeInterval);
   return (
     <div className="box">
       <h2 className="titlebox">
@@ -135,7 +142,9 @@ const ViewPortfolio = () => {
           width="100%"
           alt="img"
         />
-        <div className="text">Last day stock chart: {stockNameArray[imageIndex]}</div>
+        <div className="text">
+          Last day stock chart: {stockNameArray[imageIndex]}
+        </div>
       </div>
       <h3>Advertisement</h3>
       <div className="titlebox">{generateLotTable(otherStockData)}</div>

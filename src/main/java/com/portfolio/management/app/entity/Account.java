@@ -16,14 +16,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Entity
-@Table(name = "account")
+@Table(name = "account", uniqueConstraints= @UniqueConstraint(columnNames={"customer_id", "name"}, name = "uniqueAccountPerCustomerConstraint"))
 @Getter
 @Setter
 public class Account implements Serializable {
@@ -32,9 +32,14 @@ public class Account implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
+	
+    @NotNull
 	@Column(name = "name")
 	private String name;
-	@Column(name = "dateOpened")
+	
+	// see: https://stackoverflow.com/a/23284778
+    @NotNull
+	@Column(name = "dateOpened", updatable=false)
 	private LocalDate dateOpened;
 
     @ManyToOne

@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import com.portfolio.management.app.entity.Lot;
 import com.portfolio.management.app.entity.OwnedStock;
+import com.portfolio.management.app.entity.Portfolio;
 import com.portfolio.management.app.repository.LotRepository;
 import com.portfolio.management.app.repository.OwnedStockRepository;
 
@@ -63,8 +64,9 @@ class SellServiceTest {
 		int numSharesToSell = 20;		
 		double purchasePrice = 300.0;
 		Lot lot = new Lot(sharesOwned, purchasePrice);
+		Portfolio portfolio = null;
 		// this constructor will set back-reference from lot to owned stock
-		OwnedStock ownedStock = new OwnedStock("AAPL", lot);
+		OwnedStock ownedStock = new OwnedStock("AAPL", portfolio , lot);
 
 		// call method under test
 		Optional<Lot> savedLotOptional = sellService.sell(lot, numSharesToSell);

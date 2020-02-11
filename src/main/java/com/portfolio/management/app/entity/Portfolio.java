@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
@@ -22,7 +23,8 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "portfolio")
+@Table(name = "portfolio", uniqueConstraints= @UniqueConstraint(columnNames={"account_id", "name"}, name = "uniquePortfolioPerAccountConstraint"))
+
 @Getter
 @Setter
 public class Portfolio implements Serializable {
@@ -32,6 +34,7 @@ public class Portfolio implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
+    @NotNull
 	@Column(name = "name")
 	private String name;
 	

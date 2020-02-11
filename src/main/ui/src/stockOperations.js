@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { serviceEndpoint } from "./configuration";
 
+// TODO: not in use.
 const StockOperations = () => {
 
   const handlePopulateStocks = () => {
@@ -60,5 +61,4 @@ const StockOperations = () => {
     </div>
   );
 };
-
 export default StockOperations;

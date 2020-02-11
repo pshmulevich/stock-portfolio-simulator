@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +22,16 @@ import com.portfolio.management.app.dto.LotDTO;
 import com.portfolio.management.app.dto.LotToSellDTO;
 import com.portfolio.management.app.dto.OwnedStockDTO;
 import com.portfolio.management.app.dto.OwnedStockWithLotsDTO;
+import com.portfolio.management.app.dto.PortfolioDTO;
 import com.portfolio.management.app.dto.SellStockDTO;
+import com.portfolio.management.app.entity.Account;
 import com.portfolio.management.app.entity.Lot;
 import com.portfolio.management.app.entity.OwnedStock;
+import com.portfolio.management.app.entity.Portfolio;
+import com.portfolio.management.app.repository.AccountRepository;
 import com.portfolio.management.app.repository.LotRepository;
 import com.portfolio.management.app.repository.OwnedStockRepository;
+import com.portfolio.management.app.repository.PortfolioRepository;
 import com.portfolio.management.app.service.BuyService;
 import com.portfolio.management.app.service.SellService;
 
@@ -38,7 +45,13 @@ import com.portfolio.management.app.service.SellService;
 public class PortfolioController {
 	
 	@Autowired
+	private AccountRepository accountRepository;
+	
+	@Autowired
 	private LotRepository lotRepository;
+	
+	@Autowired
+	private PortfolioRepository portfolioRepository;
 	
 	@Autowired
 	private OwnedStockRepository ownedStockRepository;
@@ -50,62 +63,97 @@ public class PortfolioController {
 	private SellService sellService;
 	
 	@GetMapping("/ownedStocksCreate")
-	public String bulkcreate(){
+	public String bulkcreate() {
+		// TODO: Need to resolve this
+		Portfolio portfolio = null;
 		// save a list of owned Stocks
     	ownedStockRepository.saveAll(Arrays.asList(
-    			new OwnedStock("AAPL", new Lot(10, 300.0), new Lot(50, 314.0)),
-    			new OwnedStock("CRM", new Lot(40, 230.0), new Lot(20, 426.0))
+    			new OwnedStock("AAPL", portfolio , new Lot(10, 300.0), new Lot(50, 314.0)),
+    			new OwnedStock("CRM", portfolio, new Lot(40, 230.0), new Lot(20, 426.0))
 			));
 
 				
 		return "Stocks are created";
 	}
 
-	@GetMapping("/findAllStocks")
-	public List<OwnedStockDTO> findAllStocks(){
-		List<OwnedStock> ownedStocks = ownedStockRepository.findAll();
-		List<OwnedStockDTO> ownedStockDTOs = new ArrayList<>();
-		for(OwnedStock ownedStock : ownedStocks) {			
-			ownedStockDTOs.add(new OwnedStockDTO(ownedStock.getId(), ownedStock.getStockSymbol()));
+	@GetMapping("/findPortfoliosByAccount/{accountId}")
+	public ResponseEntity<List<PortfolioDTO>> findPortfoliosByAccount(@PathVariable long accountId) {
+		Optional<Account> accountOptional = accountRepository.findById(accountId);
+		List<PortfolioDTO> portfolioDTOs = new ArrayList<>();
+		if(accountOptional.isPresent()) {
+			List<Portfolio> portfolios = portfolioRepository.findByAccount(accountOptional.get());
+			for(Portfolio portfolio : portfolios) {		
+				portfolioDTOs.add(new PortfolioDTO(portfolio.getId(), portfolio.getName()));
+			}
+			return new ResponseEntity<>(portfolioDTOs, HttpStatus.OK);
+		} else {
+			// TODO: need to be able to provide custom error message
+			return new ResponseEntity<>(portfolioDTOs, HttpStatus.NOT_FOUND);
 		}
-		return ownedStockDTOs;
+
+	}
+	
+	@GetMapping("/findStocksByPortfolio/{portfolioId}")
+	public ResponseEntity<List<OwnedStockDTO>> findStocksByPortfolio(@PathVariable("portfolioId") long portfolioId) {
+		Optional<Portfolio> portfolioOptional = portfolioRepository.findById(portfolioId);
+		List<OwnedStockDTO> ownedStockDTOs = new ArrayList<>();
+		if(portfolioOptional.isPresent()) {
+			List<OwnedStock> ownedStocks = ownedStockRepository.findAll();
+			for(OwnedStock ownedStock : ownedStocks) {			
+				ownedStockDTOs.add(new OwnedStockDTO(ownedStock.getId(), ownedStock.getStockSymbol()));
+			}
+			return new ResponseEntity<>(ownedStockDTOs, HttpStatus.OK);
+		} else {
+			// TODO: need to be able to provide custom error message
+			return new ResponseEntity<>(ownedStockDTOs, HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@GetMapping("/findOwnedStocksWithLotsByPortfolio/{portfolioId}")
+	public ResponseEntity<List<OwnedStockWithLotsDTO>> findOwnedStocksWithLotsByPortfolio(@PathVariable("portfolioId") long portfolioId) {
+		Optional<Portfolio> portfolioOptional = portfolioRepository.findById(portfolioId);
+		List<OwnedStockWithLotsDTO> ownedStockWithLotsDTOs = new ArrayList<>();
+		if(portfolioOptional.isPresent()) {
+			List<OwnedStock> ownedStocksByPortfolio = ownedStockRepository.findByPortfolio(portfolioOptional.get());
+			
+			for(OwnedStock ownedStock : ownedStocksByPortfolio) {
+				List<LotDTO> lotDTOs = findLots(ownedStock);
+				OwnedStockWithLotsDTO ownedStockWithLotsDTO = new OwnedStockWithLotsDTO(ownedStock.getId(), ownedStock.getStockSymbol(), lotDTOs);
+				ownedStockWithLotsDTOs.add(ownedStockWithLotsDTO);
+			}
+			return new ResponseEntity<>(ownedStockWithLotsDTOs, HttpStatus.OK);
+		} else {
+			// TODO: need to be able to provide custom error message
+			return new ResponseEntity<>(ownedStockWithLotsDTOs, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@GetMapping("/findAllLots")
-	public List<LotDTO> findAllLots(){
+	public List<LotDTO> findAllLots() {
 		List<Lot> lots = lotRepository.findAll();
 		return toLotDTOs(lots);
 	}
 
 	@GetMapping("/findLotsByOwnedStockId/{ownedStockId}")
-	public List<LotDTO> findLotsByOwnedStockId(@PathVariable("ownedStockId") long ownedStockId){
+	public List<LotDTO> findLotsByOwnedStockId(@PathVariable("ownedStockId") long ownedStockId) {
 		Optional<OwnedStock> ownedStockOptional = ownedStockRepository.findById(ownedStockId);
 		return findLots(ownedStockOptional);
 	}
-
-	//do similar to above but by symbol
-	@GetMapping("/findLotsByOwnedStockSymbol/{ownedStockSymbol}")
-	public List<LotDTO> findLotsByOwnedStockSymbol(@PathVariable("ownedStockSymbol") String ownedStockSymbol){
-		Optional<OwnedStock> ownedStock = ownedStockRepository.findByStockSymbol(ownedStockSymbol);
-		return findLots(ownedStock);
-	}
-
-	@GetMapping("/findAllOwnedStocksWithLots")
-	public List<OwnedStockWithLotsDTO> findAllOwnedStocksWithLots(){
-		List<OwnedStock> allOwnedStocks = ownedStockRepository.findAll();
-		List<OwnedStockWithLotsDTO> ownedStockWithLotsDTOs = new ArrayList<>();
-		for(OwnedStock ownedStock : allOwnedStocks) {
-			List<LotDTO> lotDTOs = findLots(ownedStock);
-			OwnedStockWithLotsDTO ownedStockWithLotsDTO = new OwnedStockWithLotsDTO(ownedStock.getId(), ownedStock.getStockSymbol(), lotDTOs);
-			ownedStockWithLotsDTOs.add(ownedStockWithLotsDTO);
-		}
-
-		return ownedStockWithLotsDTOs;
-	}
 	
-	//------------------------------
+	@GetMapping("/findLotsByPortfolioAnsOwnedStockSymbol/{portfolioId}/{ownedStockSymbol}")
+	public ResponseEntity<List<LotDTO>> findLotsByOwnedStockSymbol(@PathVariable("portfolioId") long portfolioId, @PathVariable("ownedStockSymbol") String ownedStockSymbol){
+		Optional<Portfolio> portfolioOptional = portfolioRepository.findById(portfolioId);
+		if(portfolioOptional.isPresent()) {
+			Optional<OwnedStock> ownedStock = ownedStockRepository.findByStockSymbolAndPortfolio(ownedStockSymbol, portfolioOptional.get());
+			return new ResponseEntity<>(findLots(ownedStock), HttpStatus.OK);
+		} else {
+			// TODO: need to be able to provide custom error message
+			return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+		}
+	}
+
 	@GetMapping("/findStockPerformanceById/{ownedStockId}")
-	public List<LotDTO> findStockPerformanceById(@PathVariable("ownedStockId") long ownedStockId){
+	public List<LotDTO> findStockPerformanceById(@PathVariable("ownedStockId") long ownedStockId) {
 		Optional<OwnedStock> ownedStockOptional = ownedStockRepository.findById(ownedStockId);
 		
 		//This needs to change. Needs to show performance graph based on cumulative data.
@@ -114,11 +162,10 @@ public class PortfolioController {
 		// Q: How to do this?
 		return findLots(ownedStockOptional);
 	}
-	//------------------------------
 	
 	@PostMapping("/buyStock")
 	public void buyStock(@RequestBody BuyStockDTO buyStockDTO) {
-		buyService.buyMarket(buyStockDTO.getStockSymbol(), buyStockDTO.getNumSharesToBuy(), buyStockDTO.getStockPrice());
+		buyService.buyMarket(buyStockDTO.getPortfolioId(), buyStockDTO.getStockSymbol(), buyStockDTO.getNumSharesToBuy(), buyStockDTO.getStockPrice());
 	}
 	
 	@PostMapping("/sellStock")

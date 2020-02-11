@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,22 +30,27 @@ public class Customer implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
-	@Column(name = "userName")
+    @NotNull
+	@Column(name = "userName", unique = true)
 	private String userName;
 	
+    @NotNull
 	@Column(name = "firstName")
 	private String firstName;
 	
+    @NotNull
 	@Column(name = "lastName")
 	private String lastName;
 	
-	@Column(name = "email")
+    @NotNull
+	@Column(name = "email", unique = true)
 	private String email;
 		
 	// TODO: need to implement encryption 
 	// see: https://thoughts-on-java.org/jpa-21-how-to-implement-type-converter/
 	// see: https://blog.arnoldgalovics.com/encrypting-jpa-entity-attributes-using-listeners-in-spring/
-	@Column(name = "password")
+    @NotNull
+    @Column(name = "password")
 	private String password;
 	
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)

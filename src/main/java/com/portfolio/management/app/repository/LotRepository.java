@@ -8,6 +8,5 @@ import com.portfolio.management.app.entity.Lot;
 import com.portfolio.management.app.entity.OwnedStock;
 
 public interface LotRepository extends JpaRepository<Lot, Long> {
-
 	List<Lot> findLotByOwnedStock(OwnedStock ownedStock);
 }

@@ -4,10 +4,10 @@ import { NavLink } from "react-router-dom";
 import { DataContext } from "./dataContext";
 import "./App.css";
 
-const Dashboard = (props) => {
+const WelcomeDashboard = props => {
   const appData = useContext(DataContext);
-  // Do not render if user is logged in
-  if (appData.customerId < 0) {
+  // Do not render if user is not logged in
+  if (appData.customerId > 0) {
     return "";
   }
 
@@ -17,14 +17,16 @@ const Dashboard = (props) => {
         <NavLink exact to="/">
           Home
         </NavLink>
-        <NavLink exact to="/viewPortfolio">
-          Portfolio
+        <NavLink exact to="/login">
+          Login
         </NavLink>
-        <NavLink to="/stockInfoPage">Stock Info</NavLink>
-        <NavLink to="/logout">Logout</NavLink>
+        <NavLink exact to="/register">
+          Register
+        </NavLink>
       </div>
       <div className="content">{props.children}</div>
     </div>
   );
 };
-export default Dashboard;
+
+export default WelcomeDashboard;

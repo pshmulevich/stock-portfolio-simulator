@@ -28,7 +28,7 @@ const Home = () => {
             <li>HTML</li>
             <li>CSS</li>
             <li>Maven</li>
-            The project is so far tested in Chrome. See source code{" "}
+            See source code{" "}
             <a
               href="https://github.com/pshmulevich/stock-portfolio-simulator"
               rel="noopener noreferrer"

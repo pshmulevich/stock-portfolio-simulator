@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 import { serviceEndpoint } from "./configuration";
+import { DataContext } from "./dataContext";
 
 const StockInfoPage = props => {
+  const appData = useContext(DataContext);
+
   const { params } = props.match;
   const symbol = params.symbol;
 
@@ -15,7 +18,7 @@ const StockInfoPage = props => {
   const [invalidStockSymbol, setInvalidStockSymbol] = useState(false);
 
   const quoteUrl = serviceEndpoint + "quote/" + symbol;
-  const lotsUrl = `${serviceEndpoint}findLotsByOwnedStockSymbol/${symbol}`;
+  const lotsUrl = `${serviceEndpoint}findLotsByPortfolioAnsOwnedStockSymbol/${appData.portfolioId}/${symbol}`;
 
   useEffect(() => {
     const fetchQuoteData = async () => {
@@ -99,6 +102,7 @@ const StockInfoPage = props => {
 
   const handleBuyShares = () => {
     const buyStockRequestData = {
+      portfolioId: appData.portfolioId,
       stockSymbol: symbol,
       numSharesToBuy: numSharesToBuy,
       stockPrice: quoteListData[0].price
@@ -120,6 +124,7 @@ const StockInfoPage = props => {
     // this filters those empty elements out: https://stackoverflow.com/a/281335
     const filteredSharesToSell = sharesToSell.filter(Boolean);
     const sellStockRequestData = {
+      portfolioId: appData.portfolioId,
       sharesToSell: filteredSharesToSell,
       stockPrice: quoteListData[0].price
     };
@@ -229,9 +234,7 @@ const StockInfoPage = props => {
           </div>
         </div>
 
-        <div>
-          {renderSellSection()}
-        </div>
+        <div>{renderSellSection()}</div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
+// TODO: not in use.
 const sampleLotData = [
   {
     id: 1,
@@ -62,7 +63,6 @@ const generateLotTable = lots => {
     );
   });
 };
-
 
 const Sell = () => {
   return (

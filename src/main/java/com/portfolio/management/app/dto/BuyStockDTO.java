@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BuyStockDTO {
-
+	
+	private long portfolioId;
 	private String stockSymbol;
 	private int numSharesToBuy;
 	private double stockPrice;
