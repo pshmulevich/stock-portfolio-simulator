@@ -23,7 +23,7 @@ const RegisterWelcome = props => {
     axios.post(serviceEndpoint + "signup", registerationData).then(
       response => {
         console.log("response: ", response);
-        props.history.push("/userwelcome");
+        props.history.push("/login");
       },
       error => {
         const responseStatus = error.response.status;
