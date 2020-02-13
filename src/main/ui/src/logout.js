@@ -9,6 +9,7 @@ const Logout = props => {
   appData.setCustomerId(-1);
   appData.setAccountId(-1);
   appData.setPortfolioId(-1);
-  props.history.push("/login");
+  props.history.push("/");
+  return "";
 };
 export default Logout;
