@@ -10,7 +10,7 @@ import {
   fieldType
 } from "./util/renderers";
 
-const UserWelcome = props => {
+const Login = props => {
   const appData = useContext(DataContext);
 
   const [userName, setUserName] = useState("");
@@ -66,4 +66,4 @@ const UserWelcome = props => {
     </div>
   );
 };
-export default UserWelcome;
+export default Login;

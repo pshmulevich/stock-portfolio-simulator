@@ -1,54 +1,70 @@
-*,
-*:before,
-*:after {
+* {
   box-sizing: border-box;
   content: "";
   margin: 0;
   padding: 0;
   outline: none;
-  margin: none;
   text-decoration: none;
 }
 
-html,
-body,
-#app,
-#dashboard {
-  margin-top: 20px;
-  width: 100%;
+html {
+  height: 100%;
+}
+
+body {
+  /* background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0%, #3093c7),
+    color-stop(100%, #0a1f2e)
+  ); */
+  /* background-image: linear-gradient(top, #3093c7, #1c5a85);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#3093c7, endColorstr=#1c5a85); */
+  background-image: linear-gradient(#3093c7, #0a1f2e);
   height: 90%;
 }
 
-#app {
+#dashboard {
   font-family: Helvetica, Arial, sans-serif;
-  background: white;
+  margin-top: 20px;
+  width: 100%;
+  height: 10%;
+  /* height: 90%; */
 }
 
-#app .menu {
-  margin-top: 50px;
+.menu {
+  margin-top: 40px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   background: rgb(231, 231, 231);
   padding: 20px;
   box-shadow: 0 4px 8px #00000030;
-  font-size: 1.1rem;
-}
-#app .menu a {
-  display: block;
-  color: grey;
+  font-size: 1.4rem;
+  height: 60px;
+  text-align: center;
 }
 
-#app .menu a.active {
+.menu a {
+  display: block;
+  color: grey;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.menu a.active {
   color: black;
 }
-#app .menu a:hover {
+
+.menu a:hover {
   color: blue;
 }
 
-#app .content {
-  padding: 30px;
-  height: 100%;
+.content {
+  font-family: Helvetica, Arial, sans-serif;
+  margin: 30px;
+  background: transparent;
 }
 
 .rTable {
@@ -58,79 +74,78 @@ body,
 .rTableRow {
   display: table-row;
 }
+
 .rTableCell {
   display: table-cell;
   padding: 0px 1px;
   /* border: 1px solid #999999; */
 }
-
+/*------------------------------------------*/
 .box {
   padding: 15px;
   background: rgb(190, 190, 190);
   border: thin solid #999999;
   border-radius: 15px;
   min-width: 460px;
+  height: 100%;
 }
+
 .titlebox {
   padding: 5px;
   background: white;
   border: thin solid #999;
   border-radius: 9px;
 }
+
 .innerbox {
   padding: 5px;
   background: #ddd;
   border: thin solid #999;
   border-radius: 9px;
 }
+
 .boxtext {
   padding: 5px;
   background-color: rgb(194, 193, 193);
   border: thin solid #999;
   border-radius: 9px;
 }
+
 .boxitem {
   padding-left: 10px;
 }
-
-button {
-  padding: 4px;
-  background: rgb(174, 252, 150);
-  border: thin solid #999999;
-  border-radius: 8px;
-}
-
+/*------------------------------------------*/
 input {
-  width: 80px;
-  padding: 5px;
+  width: 140px;
+  padding: 7px;
 }
 li {
   padding-left: 5px;
 }
-
+/*------------------------------------------*/
+.header,
 .footer {
-  height: 30px;
-  padding: 10px;
   background: black;
   color: white;
   width: 100%;
   position: fixed;
-  margin-bottom: 0;
   text-align: center;
-  bottom: 0;
-}
-.header {
-  padding: 10px;
-  background: black;
-  color: white;
-  width: 100%;
-  position: absolute;
-  margin-bottom: 0;
-  text-align: center;
-  top: 0;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
-/* ---------------------------------------------------------------------*/
+.header {
+  top: 0;
+  height: 40px;
+  line-height: 40px;
+}
+
+.footer {
+  height: 30px;
+  line-height: 30px;
+  bottom: 0;
+}
+
+/* -------------------------------------------*/
 
 .mySlides {
   display: none;
@@ -233,20 +248,7 @@ img {
   text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.3);
   text-align: center;
   color: #ffffff;
-  background-color: #3093c7;
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    color-stop(0%, #3093c7),
-    color-stop(100%, #1c5a85)
-  );
-  background-image: -webkit-linear-gradient(top, #3093c7, #1c5a85);
-  background-image: -moz-linear-gradient(top, #3093c7, #1c5a85);
-  background-image: -ms-linear-gradient(top, #3093c7, #1c5a85);
-  background-image: -o-linear-gradient(top, #3093c7, #1c5a85);
-  background-image: linear-gradient(top, #3093c7, #1c5a85);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#3093c7, endColorstr=#1c5a85);
+  background-image: linear-gradient(#3093c7, #0a1f2e);
 }
 
 .button:disabled {

@@ -5,7 +5,7 @@ import Home from "./home";
 import Logout from "./logout";
 import Dashboard from "./dashboard";
 import WelcomeDashboard from "./welcomeDashboard";
-import UserWelcome from "./userwelcome";
+import Login from "./login";
 import RegisterWelcome from "./registerwelcome";
 import StockOperations from "./stockOperations";
 import ViewPortfolio from "./viewPortfolio";
@@ -29,7 +29,7 @@ const App = () => {
           <WelcomeDashboard>
             <Switch>
               <Route exact path="/" component={Home} />
-              <Route exact path="/login" component={UserWelcome} />
+              <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={RegisterWelcome} />
               <Redirect from="/viewPortfolio" to="/login" />
               {/* If neither path matches the browser URL redirect to "/" */}
@@ -44,7 +44,7 @@ const App = () => {
                 path="/stockOperations"
                 component={StockOperations}
               />
-              <Route exact path="/userwelcome" component={UserWelcome} />
+              <Route exact path="/login" component={Login} />
               <Route
                 exact
                 path="/registerwelcome"
