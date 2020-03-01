@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.portfolio.management.app.dto.ErrorDTO;
 
@@ -13,7 +12,7 @@ import com.portfolio.management.app.dto.ErrorDTO;
  * Suppresses default error page to prevent disclosing internal stacktraces.
  * 
  */
-@RestController
+//@RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ExceptionController implements ErrorController {
 	  

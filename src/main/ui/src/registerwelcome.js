@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 
-import { serviceEndpoint } from "./configuration";
 import { renderField, renderButton, fieldType } from "./util/renderers";
+import ApiService from "./api/apiService";
 
 const RegisterWelcome = props => {
   const [userName, setUserName] = useState("");
@@ -20,13 +19,15 @@ const RegisterWelcome = props => {
       userName,
       password
     };
-    axios.post(serviceEndpoint + "signup", registerationData).then(
+
+    ApiService.signup(registerationData).then(
       response => {
         console.log("response: ", response);
+        ApiService.setCsrfHeader(response);
         props.history.push("/login");
       },
       error => {
-        const responseStatus = error.response.status;
+        const responseStatus = error.response && error.response.status;
         if (responseStatus === 409) {
           console.log(error.response.data.message);
           setErrorMessage(error.response.data.message);

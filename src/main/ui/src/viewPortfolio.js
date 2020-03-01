@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import axios from "axios";
 
 import stock_pic from "./assets/stock_pic.PNG";
 import stock_pic2 from "./assets/stock_pic2.PNG";
 import stock_pic3 from "./assets/stock_pic3.PNG";
 import useInterval from "./util/useInterval";
-import { serviceEndpoint } from "./configuration";
 import { DataContext } from "./dataContext";
+import ApiService from "./api/apiService";
 
 const otherStockData = [
   {
@@ -106,18 +105,19 @@ const generateStockTable = stocks => {
 const ViewPortfolio = () => {
   const appData = useContext(DataContext);
   const [portfolioData, setPortfolioData] = useState([]);
-  const url =
-    serviceEndpoint +
-    `findOwnedStocksWithLotsByPortfolio/${appData.portfolioId}`;
+  const portfolioUrl = `findOwnedStocksWithLotsByPortfolio/${
+    appData.portfolioId
+  }`;
   useEffect(() => {
     const fetchData = async () => {
-      const result = await axios(url);
+      const result = await ApiService.getPortfolio(portfolioUrl);
+      ApiService.setCsrfHeader(result);
       console.log("portfolioData: ", result.data);
       setPortfolioData(result.data);
     };
 
     fetchData();
-  }, [url]);
+  }, [portfolioUrl]);
 
   const [imageIndex, setImageIndex] = useState(0);
 

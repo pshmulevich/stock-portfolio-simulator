@@ -10,15 +10,24 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.portfolio.management.app.config.jwt.JwtTokenUtil;
+import com.portfolio.management.app.config.jwt.dto.AuthToken;
 import com.portfolio.management.app.dto.AccountDTO;
 import com.portfolio.management.app.dto.CustomerDTO;
 import com.portfolio.management.app.dto.LoginDTO;
@@ -50,6 +59,18 @@ public class SignUpController {
 	@Autowired
 	private OwnedStockRepository ownedStockRepository;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    
+    @Autowired
+    private UserDetailsService userDetailsService;
+    
 	/**
 	 * This is a debug method
 	 */
@@ -86,43 +107,45 @@ public class SignUpController {
 		LocalDate date = LocalDate.now();
 		Account account = new Account("Personal Account", date, portfolio);
 
-		Customer customer = new Customer(userName, firstName, lastName, email, password, account);
+		String encodedPassword = passwordEncoder.encode(password);
+		Customer customer = new Customer(userName, firstName, lastName, email, encodedPassword , account);
 		customerRepository.save(customer);
 		SignUpDTO signUpDTO = new SignUpDTO("User signed up successfully");
 		return new ResponseEntity<>(signUpDTO, HttpStatus.OK);		
 	}
-	
-	@PostMapping("/login")
-	public ResponseEntity<LoginDTO> login(@RequestBody CustomerDTO customerDTO) {
-	
+
+	@PostMapping("/token")
+    public ResponseEntity<LoginDTO> issueAuthToken(@RequestBody CustomerDTO customerDTO) throws AuthenticationException {
 		String userName = customerDTO.getUserName();
 		String password = customerDTO.getPassword();
+		
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+        final String token = jwtTokenUtil.generateToken(userDetails);
+        AuthToken authToken = new AuthToken(token, userDetails.getUsername());
+
 		Optional<Customer> customerOptional = customerRepository.findByUserName(userName);
 		if(customerOptional.isPresent()) {
 			Customer customer = customerOptional.get();
-			if(customer.getPassword().equals(password)) {
-				//TODO: These two sections need to be refactored
-				Set<Account> accounts = customer.getAccounts();
-				// See: https://mkyong.com/java/java-how-to-get-the-first-item-from-set/
-				Optional<Account> accountOptional = accounts.stream().findFirst();
-				// Assuming we have one and only one account
-				Assert.isTrue(accountOptional.isPresent(), "Customer must have at least one account. Customer username: " + userName);
-				Account account = accountOptional.get();
-				
-				Set<Portfolio> portfolios = account.getPortfolios();
-				Optional<Portfolio> portfolioOptional = portfolios.stream().findFirst();
-				// Assuming we have one and only one portfolio
-				Assert.isTrue(portfolioOptional.isPresent(), "Account must have at least one portfolio. Account Id: " + account.getId());
-				Portfolio portfolio = portfolioOptional.get();
-				LoginDTO loginDTO = new LoginDTO(customer.getId(), account.getId(), portfolio.getId());
-				return new ResponseEntity<>(loginDTO, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-			}
+			//TODO: These two sections need to be refactored
+			Set<Account> accounts = customer.getAccounts();
+			// See: https://mkyong.com/java/java-how-to-get-the-first-item-from-set/
+			Optional<Account> accountOptional = accounts.stream().findFirst();
+			// Assuming we have one and only one account
+			Assert.isTrue(accountOptional.isPresent(), "Customer must have at least one account. Customer username: " + userName);
+			Account account = accountOptional.get();
+			
+			Set<Portfolio> portfolios = account.getPortfolios();
+			Optional<Portfolio> portfolioOptional = portfolios.stream().findFirst();
+			// Assuming we have one and only one portfolio
+			Assert.isTrue(portfolioOptional.isPresent(), "Account must have at least one portfolio. Account Id: " + account.getId());
+			Portfolio portfolio = portfolioOptional.get();
+	        LoginDTO loginDTO = new LoginDTO(customer.getId(), account.getId(), portfolio.getId(), authToken);
+			return new ResponseEntity<>(loginDTO, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
-	}
+    }
 	
 	@GetMapping("/findAllCustomers")
 	public List<CustomerDTO> findAllCustomers() {

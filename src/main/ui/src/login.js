@@ -1,7 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 
-import { serviceEndpoint } from "./configuration";
 import { DataContext } from "./dataContext";
 import {
   renderField,
@@ -9,6 +7,7 @@ import {
   renderNavLink,
   fieldType
 } from "./util/renderers";
+import ApiService from "./api/apiService";
 
 const Login = props => {
   const appData = useContext(DataContext);
@@ -22,18 +21,22 @@ const Login = props => {
       userName,
       password
     };
-    axios.post(serviceEndpoint + "login", loginData).then(
+
+    ApiService.login(loginData).then(
       response => {
+        //  TODO: need to check for status 200
         console.log("response: ", response);
-        const { customerId, accountId, portfolioId } = response.data;
+        const { customerId, accountId, portfolioId, authToken } = response.data;
         appData.setCustomerId(customerId);
         appData.setAccountId(accountId);
         appData.setPortfolioId(portfolioId);
         props.history.push("/viewPortfolio");
+        ApiService.setUserInfo(authToken);
+        ApiService.setCsrfHeader(response);
       },
       error => {
         console.error(error);
-        const responseStatus = error.response.status;
+        const responseStatus = error.response && error.response.status;
         if (responseStatus === 401) {
           setErrorMessage("Username or Password did not match");
         } else {

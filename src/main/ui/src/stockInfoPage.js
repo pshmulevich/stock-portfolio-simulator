@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
 import { NavLink } from "react-router-dom";
-import { serviceEndpoint } from "./configuration";
+
 import { DataContext } from "./dataContext";
+import ApiService from "./api/apiService";
 
 const StockInfoPage = props => {
   const appData = useContext(DataContext);
@@ -17,22 +17,26 @@ const StockInfoPage = props => {
   const [enteredSharesToSell, setEnteredSharesToSell] = useState(0);
   const [invalidStockSymbol, setInvalidStockSymbol] = useState(false);
 
-  const quoteUrl = serviceEndpoint + "quote/" + symbol;
-  const lotsUrl = `${serviceEndpoint}findLotsByPortfolioAnsOwnedStockSymbol/${appData.portfolioId}/${symbol}`;
+  const quoteUrl = "quote/" + symbol;
+  const lotsUrl = `findLotsByPortfolioAnsOwnedStockSymbol/${
+    appData.portfolioId
+  }/${symbol}`;
 
   useEffect(() => {
     const fetchQuoteData = async () => {
-      const result = await axios(quoteUrl);
+      const result = await ApiService.getQuote(quoteUrl);
       console.log("Quote data: ", result.data.data);
       setQuoteListData(result.data.data);
       setInvalidStockSymbol(result.data.data.length === 0);
+      ApiService.setCsrfHeader(result);
     };
 
     const fetchLotsData = async () => {
-      const result = await axios(lotsUrl);
+      const result = await ApiService.getLots(lotsUrl);
       console.log("Lots data: ", result.data);
       setLotsData(result.data);
       setSharesToSell(new Array(result.data.length));
+      ApiService.setCsrfHeader(result);
     };
 
     fetchQuoteData();
@@ -108,9 +112,10 @@ const StockInfoPage = props => {
       stockPrice: quoteListData[0].price
     };
     console.log("buyStockRequestData: ", buyStockRequestData);
-    axios.post(serviceEndpoint + "buyStock", buyStockRequestData).then(
+    ApiService.buyStock(buyStockRequestData).then(
       response => {
         console.log("Buy Shares Response: ", response);
+        ApiService.setCsrfHeader(response);
         props.history.push("/viewPortfolio");
       },
       error => {
@@ -130,9 +135,10 @@ const StockInfoPage = props => {
     };
 
     console.log("sellStockRequestData: ", sellStockRequestData);
-    axios.post(serviceEndpoint + "sellStock", sellStockRequestData).then(
+    ApiService.sellStock(sellStockRequestData).then(
       response => {
         console.log("Sell Shares Response: ", response);
+        ApiService.setCsrfHeader(response);
         props.history.push("/viewPortfolio");
       },
       error => {
