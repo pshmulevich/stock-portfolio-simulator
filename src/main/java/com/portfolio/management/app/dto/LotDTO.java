@@ -6,6 +6,7 @@ public class LotDTO {
 	private double purchasePrice;
 	private OwnedStockDTO ownedStockDTO;
 
+	public LotDTO() {}
 	
 	public LotDTO(long id, int sharesOwned, double purchasePrice, OwnedStockDTO ownedStockDTO) {
 		this.id = id;

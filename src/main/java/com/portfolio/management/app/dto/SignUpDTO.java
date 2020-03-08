@@ -8,6 +8,8 @@ import lombok.Setter;
 public class SignUpDTO {
 	private String message;
 	
+	public SignUpDTO() {}
+	
 	public SignUpDTO(String message) {
 		this.message = message;
 	}

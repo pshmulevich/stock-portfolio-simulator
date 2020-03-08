@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -119,28 +118,35 @@ public class SignUpController {
 		String userName = customerDTO.getUserName();
 		String password = customerDTO.getPassword();
 		
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        AuthToken authToken = new AuthToken(token, userDetails.getUsername());
+		try {
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+		} catch (AuthenticationException e) {
+			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+		final String token = jwtTokenUtil.generateToken(userDetails);
+		AuthToken authToken = new AuthToken(token, userDetails.getUsername());
 
 		Optional<Customer> customerOptional = customerRepository.findByUserName(userName);
-		if(customerOptional.isPresent()) {
+		if (customerOptional.isPresent()) {
 			Customer customer = customerOptional.get();
-			//TODO: These two sections need to be refactored
+			// TODO: These two sections need to be refactored
 			Set<Account> accounts = customer.getAccounts();
 			// See: https://mkyong.com/java/java-how-to-get-the-first-item-from-set/
 			Optional<Account> accountOptional = accounts.stream().findFirst();
 			// Assuming we have one and only one account
-			Assert.isTrue(accountOptional.isPresent(), "Customer must have at least one account. Customer username: " + userName);
+			Assert.isTrue(accountOptional.isPresent(),
+					"Customer must have at least one account. Customer username: " + userName);
 			Account account = accountOptional.get();
-			
+
 			Set<Portfolio> portfolios = account.getPortfolios();
 			Optional<Portfolio> portfolioOptional = portfolios.stream().findFirst();
 			// Assuming we have one and only one portfolio
-			Assert.isTrue(portfolioOptional.isPresent(), "Account must have at least one portfolio. Account Id: " + account.getId());
+			Assert.isTrue(portfolioOptional.isPresent(),
+					"Account must have at least one portfolio. Account Id: " + account.getId());
 			Portfolio portfolio = portfolioOptional.get();
-	        LoginDTO loginDTO = new LoginDTO(customer.getId(), account.getId(), portfolio.getId(), authToken);
+			LoginDTO loginDTO = new LoginDTO(customer.getId(), account.getId(), portfolio.getId(), authToken);
 			return new ResponseEntity<>(loginDTO, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);

@@ -4,6 +4,8 @@ public class OwnedStockDTO {
 	private long id;
 	private String stockSymbol;
 	
+	public OwnedStockDTO() {}
+	
 	public OwnedStockDTO(long id, String stockSymbol) {
 		this.id = id;
 		this.stockSymbol = stockSymbol;

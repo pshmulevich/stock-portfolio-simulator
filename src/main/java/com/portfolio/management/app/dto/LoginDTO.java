@@ -14,6 +14,8 @@ public class LoginDTO {
 	private String message;
 	private AuthToken authToken;
 	
+	public LoginDTO() {}
+	
 	public LoginDTO(String message) {
 		this.message = message;
 	}

@@ -5,6 +5,8 @@ import java.util.List;
 public class OwnedStockWithLotsDTO extends OwnedStockDTO {
 	private List<LotDTO> lotDTOs;
 	
+	public OwnedStockWithLotsDTO() {}
+	
 	public OwnedStockWithLotsDTO(long id, String stockSymbol, List<LotDTO> lotDTOs) {
 		super(id, stockSymbol);
 		this.setLotDTOs(lotDTOs);
