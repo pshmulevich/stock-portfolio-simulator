@@ -196,8 +196,6 @@ public class PortfolioController {
 		return findLots(ownedStockOptional);
 	}
 
-	
-	//check if the right user is the one buying the stock
 	@PostMapping("/buyStock")
 	public ResponseEntity<LotDTO> buyStock(@RequestBody BuyStockDTO buyStockDTO) {
 		// Check if this portfolio belongs to that user
@@ -214,13 +212,13 @@ public class PortfolioController {
 		return new ResponseEntity<>(lotDTO , HttpStatus.OK);
 	}
 
-	//check if the user who owns the stock is selling the stock
 	@PostMapping("/sellStock")
 	public void sellStock(@RequestBody SellStockDTO sellStockDTO) {
 
 		for(LotToSellDTO lotDTO : sellStockDTO.getSharesToSell()) {
 			Optional<Lot>lotOptional = lotRepository.findById(lotDTO.getLotId());
 			int numSharesToSell = lotDTO.getQty();
+
 			if(lotOptional.isPresent() && numSharesToSell > 0) {
 				sellService.sell(lotOptional.get(), numSharesToSell);
 			}

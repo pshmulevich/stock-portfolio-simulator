@@ -56,8 +56,6 @@ class ApplicationEndToEndTest {
 	@Test
 	void testEndToEndFlow() {
 
-		assertTrue(customerRepository.count()==0);
-
 		String signUpUrl = "/api/portfolio/signup";
 		String queryPortfolio = "/api/portfolio/findOwnedStocksWithLotsByPortfolio";
 		String buyStockUrl = "/api/portfolio/buyStock";
@@ -69,6 +67,8 @@ class ApplicationEndToEndTest {
 		String email = "firstName1@email.com";
 		String password = "testPassword";
 
+		assertFalse(customerRepository.findByUserName(userName).isPresent());
+
 		CustomerDTO signUpBody = new CustomerDTO(-1, userName, firstName, lastName, email);
 
 		signUpBody.setPassword(password);
@@ -78,9 +78,6 @@ class ApplicationEndToEndTest {
 		assertEquals(HttpStatus.OK, signUpResult.getStatusCode());
 		// Assert the customer signed up successfully
 		assertEquals("User signed up successfully", signUpResult.getBody().getMessage());
-
-		// Assert customer repository has 1 user
-		assertEquals(customerRepository.count(), 1);
 
 		Optional<Customer> userOptional = customerRepository.findByUserName(userName);
 		// Assert customer is present
@@ -202,6 +199,98 @@ class ApplicationEndToEndTest {
 
 		//partial shares, expecting 2 remaining shares
 		assertEquals(numExpectedSharesRemaining, 2);
+	}
+	//=================================================================================
+	//=================================================================================
+
+	@Test
+	void testEndToEndFlowFlawedPurchase() {
+		assertTrue(customerRepository.count()==0);
+
+		String signUpUrl = "/api/portfolio/signup";
+		String queryPortfolio = "/api/portfolio/findOwnedStocksWithLotsByPortfolio";
+		String buyStockUrl = "/api/portfolio/buyStock";
+		String sellStockUrl = "/api/portfolio/sellStock";
+		int numSharesToSellGreater = 45;
+		String userName = "userName2";
+		String firstName = "firstName2";
+		String lastName = "lastName2";
+		String email = "firstName2@email.com";
+		String password = "testPassword2";
+
+		CustomerDTO signUpBody = new CustomerDTO(-1, userName, firstName, lastName, email);
+
+		signUpBody.setPassword(password);
+		ResponseEntity<SignUpDTO> signUpResult = testRestTemplate.postForEntity(signUpUrl, signUpBody, SignUpDTO.class);
+		//do assertions:
+		assertEquals(HttpStatus.OK, signUpResult.getStatusCode());
+		assertEquals("User signed up successfully", signUpResult.getBody().getMessage());
+
+		Optional<Customer> userOptional = customerRepository.findByUserName(userName);
+		assertTrue(userOptional.isPresent());
+		Customer user = userOptional.get();		
+
+		//----------------------------------------------------	
+		// Make a login request. Get back the token, customerId, portfolioId, accountId
+		ResponseEntity<LoginDTO> loginResult = makeLoginRequest(userName, password);
+		assertEquals(HttpStatus.OK, loginResult.getStatusCode());
+		// verify there is a token issued
+		LoginDTO body = loginResult.getBody();
+		String token = body.getAuthToken().getToken();
+		// Save information from body for useages
+		Long portfolioId = body.getPortfolioId();
+		Long customerId = body.getCustomerId();
+		assertNotNull(token);
+		assertTrue(token.length() > 0);
+		//---------------------------------------------------------------------------------------------------------------------			
+		// Make a request to query a portfolio using the token and portfolioId
+		String fullPortfolioQuery = queryPortfolio + "/" + portfolioId;
+		ResponseEntity<OwnedStockWithLotsDTOResult> portfolioQueryResult = makeAuthenticatedGetRequest(fullPortfolioQuery, token, OwnedStockWithLotsDTOResult.class);
+		assertEquals(HttpStatus.OK, portfolioQueryResult.getStatusCode());
+
+		// Make a buy request-------buy 12 shares for this test--------------------------------------------
+		BuyStockDTO buyStockDTO = new BuyStockDTO();
+		String stockSymbol = "F";
+		int numSharesToBuy = 12;
+		double stockPrice = 32.0;
+		buyStockDTO.setPortfolioId(portfolioId);	
+		buyStockDTO.setStockSymbol(stockSymbol);		
+		buyStockDTO.setNumSharesToBuy(numSharesToBuy);		
+		buyStockDTO.setStockPrice(stockPrice);
+		ResponseEntity<LotDTO> buyStockResult = makeAuthenticatedPostRequest(buyStockUrl, token, buyStockDTO, LotDTO.class);
+		assertEquals(HttpStatus.OK, buyStockResult.getStatusCode());
+		//drill down into repositories and verify purchase. Use the LotDTO obj.
+
+		LotDTO buyStockLotDTO = buyStockResult.getBody();		
+
+		long lotId = buyStockLotDTO.getId(); //(to be used in sell too)
+
+		//also assert the shares quantity
+		int testOwnedShares = buyStockLotDTO.getSharesOwned();
+		assertEquals(testOwnedShares, numSharesToBuy);
+		//also assert purchase price
+		double testOwnedSharesPrice = buyStockLotDTO.getPurchasePrice();
+		assertEquals(testOwnedSharesPrice, stockPrice);
+
+		// Create sell request------Sell more than the 12 shares we have---------------------------------						
+		// First create the lot:
+		LotToSellDTO lotToSellDTO = new LotToSellDTO();		
+		lotToSellDTO.setLotId(lotId);
+		lotToSellDTO.setQty(numSharesToSellGreater);
+
+		// Create a list of lots:
+		List<LotToSellDTO> sharesToSell = new ArrayList<>();
+		sharesToSell.add(lotToSellDTO);
+
+		double stockPriceToSellAt = stockPrice;		
+		SellStockDTO sellStockDTO = new SellStockDTO();
+		sellStockDTO.setStockPrice(stockPriceToSellAt);
+		sellStockDTO.setSharesToSell(sharesToSell);
+
+		ResponseEntity<Void> sellStockResult = makeAuthenticatedPostRequest(sellStockUrl, token, sellStockDTO, Void.class);
+		// Expecting internal service error http code 500
+		// TODO: service needs to provide a more meaningful error message
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, sellStockResult.getStatusCode());
 	}
 
 	//===================================================
