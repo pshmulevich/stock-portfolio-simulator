@@ -38,12 +38,18 @@ import com.portfolio.management.app.service.BuyService;
 import com.portfolio.management.app.service.SellService;
 import com.portfolio.management.app.service.UserContextService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
+
 /**
  * Controller for managing portfolio over REST API
  *
  */
 @RestController
 @RequestMapping("/api/portfolio")
+@Api(tags = "Portfolio API")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class PortfolioController {
 	private final Log logger = LogFactory.getLog(getClass());
@@ -70,6 +76,13 @@ public class PortfolioController {
 	private UserContextService userContextService;
 
 	@GetMapping("/ownedStocksCreate")
+	@ApiIgnore("This endpoint will be deprecated")
+	@ApiOperation(
+            value = "Create sample portfolio of stocks",
+            notes = "Creates test sample portfolio",
+            response = OwnedStock.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public String bulkcreate() {
 		// TODO: Need to resolve this
 		Portfolio portfolio = null;
@@ -84,11 +97,17 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findPortfoliosByAccount/{accountId}")
+	@ApiOperation(
+            value = "Get portfolio by account ID",
+            notes = "Returns portfolio for account ID specified.",
+            response = Portfolio.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<PortfolioDTO>> findPortfoliosByAccount(@PathVariable long accountId) {
 		//-------------------------------------------------------
 		// Check if this account belongs to that user
 		if(!userContextService.isAccountIdValidFromContext(accountId)) {
-			logger.error("Unauthorized access of account id: " + accountId + " by: " + userContextService.getLoggedInUser());
+			logger.error("Unauthorized access of account ID: " + accountId + " by: " + userContextService.getLoggedInUser());
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		//---------------------------------------------------------
@@ -108,11 +127,17 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findOwnedStocksByPortfolio/{portfolioId}")
+	@ApiOperation(
+            value = "Get owned stock by portfolio ID",
+            notes = "Returns owned stock for portfolio ID specified.",
+            response = OwnedStock.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<OwnedStockDTO>> findOwnedStocksByPortfolio(@PathVariable("portfolioId") long portfolioId) {
 		//-------------------------------------------------------
 		// Check if this portfolio belongs to that user
 		if(!userContextService.isPortfolioIdValidFromContext(portfolioId)) {
-			logger.error("Unauthorized access of portfolio id: " + portfolioId + " by: " + userContextService.getLoggedInUser());
+			logger.error("Unauthorized access of portfolio ID: " + portfolioId + " by: " + userContextService.getLoggedInUser());
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		//---------------------------------------------------------
@@ -131,6 +156,12 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findOwnedStocksWithLotsByPortfolio/{portfolioId}")
+	@ApiOperation(
+            value = "Get owned stock with lots by portfolio ID",
+            notes = "Returns owned stock with lots for portfolio ID specified.",
+            response = OwnedStock.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<OwnedStockWithLotsDTO>> findOwnedStocksWithLotsByPortfolio(@PathVariable("portfolioId") long portfolioId) {
 		//-------------------------------------------------------
 		// Check if this portfolio belongs to that user
@@ -157,6 +188,12 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findLotsByOwnedStockId/{ownedStockId}")
+	@ApiOperation(
+            value = "Get lots by owned stock ID",
+            notes = "Returns lots belonging to the owned stock by ID specified.",
+            response = OwnedStock.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<LotDTO>> findLotsByOwnedStockId(@PathVariable("ownedStockId") long ownedStockId) {
 		//-------------------------------------------------------
 		// Check if this owned stock belongs to that user
@@ -174,6 +211,12 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findLotsByPortfolioAnsOwnedStockSymbol/{portfolioId}/{ownedStockSymbol}")
+	@ApiOperation(
+            value = "Get lots by portfolio ID and owned stock symbol",
+            notes = "Returns lots by the portfolio ID and stock symbol specified.",
+            response = Lot.class)
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<LotDTO>> findLotsByOwnedStockSymbol(@PathVariable("portfolioId") long portfolioId, @PathVariable("ownedStockSymbol") String ownedStockSymbol){
 		Optional<Portfolio> portfolioOptional = portfolioRepository.findById(portfolioId);
 		if(portfolioOptional.isPresent()) {
@@ -186,6 +229,12 @@ public class PortfolioController {
 	}
 
 	@GetMapping("/findStockPerformanceById/{ownedStockId}")
+	@ApiIgnore("This endpoint will be deprecated")
+	@ApiOperation(
+            value = "Find stock performance by owned stock ID",
+            notes = "Currently not used, a concept idea")
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public List<LotDTO> findStockPerformanceById(@PathVariable("ownedStockId") long ownedStockId) {
 		Optional<OwnedStock> ownedStockOptional = ownedStockRepository.findById(ownedStockId);
 
@@ -197,11 +246,16 @@ public class PortfolioController {
 	}
 
 	@PostMapping("/buyStock")
+	@ApiOperation(
+            value = "Buy a new stock",
+            notes = "Adds purchased stock to portfolio")
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<LotDTO> buyStock(@RequestBody BuyStockDTO buyStockDTO) {
 		// Check if this portfolio belongs to that user
 		long portfolioId = buyStockDTO.getPortfolioId();
 		if(!userContextService.isPortfolioIdValidFromContext(portfolioId)) {
-			logger.error("Unauthorized access of portfolio id: " + portfolioId + " by: " + userContextService.getLoggedInUser());
+			logger.error("Unauthorized access of portfolio ID: " + portfolioId + " by: " + userContextService.getLoggedInUser());
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 
@@ -213,6 +267,11 @@ public class PortfolioController {
 	}
 
 	@PostMapping("/sellStock")
+	@ApiOperation(
+            value = "Sell a stock",
+            notes = "Sells a purchased stock from portfolio")
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public void sellStock(@RequestBody SellStockDTO sellStockDTO) {
 
 		for(LotToSellDTO lotDTO : sellStockDTO.getSharesToSell()) {

@@ -16,15 +16,21 @@ import com.portfolio.management.app.dto.StockDTO;
 import com.portfolio.management.app.entity.Stock;
 import com.portfolio.management.app.repository.StockRepository;
 
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
+
 /**
  * This class is used for debugging
  *
  */
 @RestController
+@ApiIgnore("This controller is deprecated")
+@Deprecated
 public class StockController {
 	@Autowired
 	StockRepository repository;
 	@GetMapping("/stockscreate")
+
 	public String bulkcreate(){
 		// save a list of Stocks
 		//stockSymbol, openValue, dayRange, dividendRate, peRatio, previousClose, volume, shares
@@ -63,6 +69,10 @@ public class StockController {
 		return "Stocks are created";
 	}
 	@PostMapping("/createstock")
+	@ApiOperation(
+            value = "Create new stock",
+            notes = "Creates new real stock.",
+            response = Stock.class)
 	public String create(@RequestBody StockDTO stock){
 		// save a single Stock
 		repository.save(new Stock(stock.getStockSymbol(), 
@@ -76,6 +86,10 @@ public class StockController {
 		return "Stock is created";
 	}
 	@GetMapping("/findallstock")
+	@ApiOperation(
+            value = "Find all stock",
+            notes = "Finds all the existing stocks.",
+            response = Stock.class)	
 	public List<StockDTO> findAll(){
 		List<Stock> stocks = repository.findAll();
 		List<StockDTO> stockUI = new ArrayList<>();
@@ -95,17 +109,28 @@ public class StockController {
 	
 	//---------------------------------------------
 	@GetMapping("/clearallstock")
+	@ApiOperation(
+            value = "Clear stock",
+            notes = "Deletes all the stocks.")
 	public void clearAll(){
-		repository.deleteAll();;		
+		repository.deleteAll();		
 	}
 	//--------------------------------------------
 	@RequestMapping("/searchstock/{id}")
+	 @ApiOperation(
+	            value = "Get stock by id",
+	            notes = "Returns stock for id specified.",
+	            response = Stock.class)
 	public String search(@PathVariable long id){
 		String stock = "";
 		stock = repository.findById(id).toString();
 		return stock;
 	}
 	@RequestMapping("/searchbyStockSymbol/{stockSymbol}")
+	 @ApiOperation(
+	            value = "Get stock by stock symbol",
+	            notes = "Returns stock for stock symbol specified.",
+	            response = Stock.class)
 	public List<StockDTO> fetchDataByStockSymbol(@PathVariable String stockSymbol){
 		List<Stock> stocks = repository.findByStockSymbol(stockSymbol);
 		List<StockDTO> stockUI = new ArrayList<>();

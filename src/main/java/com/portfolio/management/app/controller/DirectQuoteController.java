@@ -13,12 +13,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+
 /**
  * Controller for exposing direct quotes over REST API
  *
  */
 @RestController
 @RequestMapping("/api/portfolio")
+@Api(tags = "Direct Quote API")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class DirectQuoteController {
 	@Value("${quote.api.token}")
@@ -27,6 +32,12 @@ public class DirectQuoteController {
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	@GetMapping("/quote/{stockSymbol}")
+	@ApiOperation(
+	        value = "Get quote by stock symbol",
+	        notes = "Returns quote for stock symbol specified.")
+	//See: https://www.codota.com/code/java/classes/io.swagger.annotations.ApiImplicitParam
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")
 	public StockQuotes getQuote(@PathVariable("stockSymbol") String stockSymbol){
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("api_token", apiToken);
@@ -42,6 +53,11 @@ public class DirectQuoteController {
 	 * @return unparsed service response
 	 */
 	@GetMapping("/quoteDebug/{stockSymbol}")
+	@ApiOperation(
+	        value = "Debug quote by stock symbol",
+	        notes = "Returns debug quote for stock symbol specified.")
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+    	dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public String getQuoteDebug(@PathVariable("stockSymbol") String stockSymbol){
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("api_token", apiToken);

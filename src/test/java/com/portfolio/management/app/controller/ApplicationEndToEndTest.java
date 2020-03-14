@@ -1,4 +1,4 @@
-package com.portfolio.management.app.service;
+package com.portfolio.management.app.controller;
 
 import static com.portfolio.management.app.config.jwt.constants.Constants.AUTHORIZATION_HEADER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +13,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,6 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.portfolio.management.app.dto.BuyStockDTO;
 import com.portfolio.management.app.dto.CustomerDTO;
@@ -42,6 +46,9 @@ import com.portfolio.management.app.repository.OwnedStockRepository;
  *
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+// See: https://stackoverflow.com/a/58903016
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = Replace.ANY)
 class ApplicationEndToEndTest {
 
 	@Autowired

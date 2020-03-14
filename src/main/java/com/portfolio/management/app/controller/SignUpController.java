@@ -40,12 +40,18 @@ import com.portfolio.management.app.repository.AccountRepository;
 import com.portfolio.management.app.repository.CustomerRepository;
 import com.portfolio.management.app.repository.OwnedStockRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
+
 /**
  * Controller for signing up new customers over REST API
  *
  */
 @RestController
 @RequestMapping("/api/portfolio")
+@Api(tags = "Registration and sign-in API")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class SignUpController {
 
@@ -74,6 +80,10 @@ public class SignUpController {
 	 * This is a debug method
 	 */
 	@GetMapping("/demoSignup")
+	@ApiIgnore("This endpoint will be deprecated")
+	@ApiOperation(
+            value = "Registration simulation",
+            notes = "Simulate a user Registering an account.")
 	public String demoSignup() {
 		
 		signUpDemoCustomer("jsmithbigbucks", "John", "Smith", "JSmith@myob.com");
@@ -84,6 +94,9 @@ public class SignUpController {
 	}
 	
 	@PostMapping("/signup")
+	@ApiOperation(
+            value = "Register a new customer",
+            notes = "Register a new customer.")
 	public ResponseEntity<SignUpDTO> signup(@RequestBody CustomerDTO customerDTO) {
 		String userName = customerDTO.getUserName();
 		String firstName = customerDTO.getFirstName();
@@ -114,6 +127,9 @@ public class SignUpController {
 	}
 
 	@PostMapping("/token")
+	@ApiOperation(
+            value = "Sign in and retrieve JWT Authrization token",
+            notes = "Retrieve a token after a user registers.")
     public ResponseEntity<LoginDTO> issueAuthToken(@RequestBody CustomerDTO customerDTO) throws AuthenticationException {
 		String userName = customerDTO.getUserName();
 		String password = customerDTO.getPassword();
@@ -154,6 +170,10 @@ public class SignUpController {
     }
 	
 	@GetMapping("/findAllCustomers")
+	@ApiIgnore("This endpoint will be deprecated")
+	@ApiOperation(
+            value = "Retrieve customers",
+            notes = "Retrieve all customers that are registered.")
 	public List<CustomerDTO> findAllCustomers() {
 		List<Customer> customers = customerRepository.findAll();
 		List<CustomerDTO> customerDTOs = new ArrayList<>();
@@ -164,6 +184,12 @@ public class SignUpController {
 	}
 	
 	@GetMapping("/findAccountsByCustomer/{customerId}")
+	@ApiIgnore("This endpoint will be deprecated")
+	@ApiOperation(
+            value = "Find accounts by customer ID",
+            notes = "Find all accounts that are owned by a customer ID.")
+	@ApiImplicitParam(name = "Authorization", required = true, paramType = "header",
+		dataType = "string", value = "authorization header", defaultValue = "Bearer ")	
 	public ResponseEntity<List<AccountDTO>> findAccountsByCustomer(@PathVariable long customerId) {
 		Optional<Customer> customerOptional = customerRepository.findById(customerId);
 		List<AccountDTO> accountDTOs = new ArrayList<>();

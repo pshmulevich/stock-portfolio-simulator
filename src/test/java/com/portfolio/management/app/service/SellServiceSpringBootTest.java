@@ -11,8 +11,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import com.portfolio.management.app.entity.Lot;
 import com.portfolio.management.app.entity.OwnedStock;
@@ -27,6 +31,8 @@ import com.portfolio.management.app.repository.OwnedStockRepository;
  * Avoid using this type of test whenever a true unit test is possible.
  */
 @SpringBootTest
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = Replace.ANY)
 class SellServiceSpringBootTest {
 
 	@MockBean
